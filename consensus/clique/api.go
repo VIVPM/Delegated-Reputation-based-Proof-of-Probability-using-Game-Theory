@@ -132,7 +132,7 @@ func (api *API) BlockCreate(num int) {
 		time1 += int(now2.Sub(now1))
 		time1 += x
 	}
-	fmt.Println("Average time: ", time1/(10), "ms")
+	fmt.Println("Average time: ", time1/(10*100000), "ms")
 }
 
 func (api *API) StageOne() { //First stage game activated
