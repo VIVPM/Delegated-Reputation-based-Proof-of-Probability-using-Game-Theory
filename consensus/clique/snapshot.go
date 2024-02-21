@@ -749,7 +749,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		endTime := time.Now()
 		duration := endTime.Sub(startTime)
-		fmt.Println("Execution Time: ", duration.Milliseconds(), "ms")
+		fmt.Println("Execution Time: ", duration)
 		if len(myList) > 0 {
 			sort.Slice(myList, func(i, j int) bool {
 				return myList[i] < myList[j]
