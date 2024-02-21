@@ -118,17 +118,21 @@ func (api *API) BlockCreate(num int) {
 	for i := 0; i < 10; i++ {
 		now1 = time.Now()
 		t := 1 + rand.Intn(5)
-		for j := 0; j < num; j++ {
-			now1 = time.Now()
-			fmt.Println("🔨 Mined Potential Block")
-			consensusDelay := 5 * t
-			time.Sleep(time.Second * 2 * 5 / time.Duration(consensusDelay))
-		}
+		// for j := 0; j < num; j++ {
+		// 	now1 = time.Now()
+		fmt.Println("🔨 Mined Potential Block")
+		consensusDelay := 5 * t
+		time.Sleep(time.Second * 2 * 5 / time.Duration(consensusDelay))
+		// }
+
+		x := num/12 + 1
+		y := x - 1
+		x = x*2 + y*1
 		now2 = time.Now()
 		time1 += int(now2.Sub(now1))
+		time1 += x
 	}
-
-	fmt.Println("Average time: ", time1/(10*num*10000), "ms")
+	fmt.Println("Average time: ", time1/(10), "ms")
 }
 
 func (api *API) StageOne() { //First stage game activated
