@@ -458,7 +458,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 		// avg = add / uint64(len(snap.TallyStakes))
 		// fmt.Println("avg:", add, avg)
-		avg = (max + min) / 2
+		avg = max - (min / 2)
 		var f1 bool
 		for i := 0; i < len(snap.TallyStakes); i++ {
 			f1 = false
