@@ -889,6 +889,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		snap.StakeSigner = max_address1
 
 		fmt.Println("Miner Selected ", snap.StakeSigner)
+		fmt.Println(index)
 
 		endTime := time.Now()
 		duration := endTime.Sub(startTime)
