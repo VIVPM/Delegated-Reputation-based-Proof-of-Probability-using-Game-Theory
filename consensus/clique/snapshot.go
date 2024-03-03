@@ -567,7 +567,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			f1 = false
 			flag2 := 0
-			if (100 * snap.TallyDelegatedStake[i].Current_game_plaing / uint64(len(snap.TallyDelegatedStake))) < 50 {
+			if (100 * snap.TallyDelegatedStake[i].Current_game_plaing / uint64(len(snap.TallyDelegatedStake))) <= 50 {
 				for j := 0; j < len(snap.MinerPool); j++ {
 					if snap.TallyDelegatedStake[i].Owner == snap.MinerPool[j].Owner {
 						f1 = true
@@ -675,7 +675,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		for i := 0; i < len(snap.MinerPool); i++ {
 			flag2 := 0
-			if (100 * snap.MinerPool[i].Curent_Broadcast_count / uint64(len(snap.MinerPool))) < 40 {
+			if (100 * snap.MinerPool[i].Curent_Broadcast_count / uint64(len(snap.MinerPool))) <= 40 {
 				snap.MinerPool[i].Eligible = true
 			} else {
 				for _, v := range myList2 {
@@ -689,6 +689,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					myList2 = append(myList2, i)
 				}
 			}
+			snap.MinerPool[i].Curent_Broadcast_count = 0
 		}
 
 		var count_eligible uint64 = 0
@@ -699,17 +700,181 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		fmt.Println("Number of Eligible nodes = ", count_eligible)
-		if count_eligible > 2 && count2 < 3 {
-			apply1()
+		if count_eligible > 1 && count2 < 3 {
+			// apply1()
+
+			for i := 0; i < len(snap.MinerPool); i++ {
+				for j := i + 1; j < len(snap.MinerPool); j++ {
+					if snap.MinerPool[i].Eligible == false {
+						break
+					}
+
+					if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+						k := rand.Intn(2)
+						m := rand.Intn(2)
+						if k == 0 { //0 means broadcast and 1 means non-broadcast
+							snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+							snap.MinerPool[i].Curent_Broadcast_count += 1
+							snap.MinerPool[i].Broadcast += 1
+							var hj uint64 = (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+							myList1 = append(myList1, hj)
+						}
+
+						if m == 0 {
+							snap.MinerPool[j].Reputation = snap.MinerPool[j].Reputation - (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+							snap.MinerPool[j].Curent_Broadcast_count += 1
+							snap.MinerPool[j].Broadcast += 1
+							var hj uint64 = (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+							myList1 = append(myList1, hj)
+						}
+
+						snap.MinerPool[i].Broadcast_Game += 1
+						snap.MinerPool[j].Broadcast_Game += 1
+					}
+				}
+			}
+
+			count_eligible = 0
 			count2 += 1
+
+			for i := 0; i < len(snap.MinerPool); i++ {
+				flag2 := 0
+				if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
+					snap.MinerPool[i].Eligible = false
+					for _, v := range myList2 {
+						if v == i {
+							flag2 = 1
+							break
+						}
+					}
+
+					if flag2 == 0 {
+						myList2 = append(myList2, i)
+					}
+				} else {
+					count_eligible += 1
+				}
+			}
+
+			if count_eligible > 1 && count2 < 3 {
+				// apply1()
+
+				for i := 0; i < len(snap.MinerPool); i++ {
+					for j := i + 1; j < len(snap.MinerPool); j++ {
+						if snap.MinerPool[i].Eligible == false {
+							break
+						}
+
+						if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+							k := rand.Intn(2)
+							m := rand.Intn(2)
+							if k == 0 { //0 means broadcast and 1 means non-broadcast
+								snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+								snap.MinerPool[i].Curent_Broadcast_count += 1
+								snap.MinerPool[i].Broadcast += 1
+								var hj uint64 = (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+								myList1 = append(myList1, hj)
+							}
+
+							if m == 0 {
+								snap.MinerPool[j].Reputation = snap.MinerPool[j].Reputation - (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+								snap.MinerPool[j].Curent_Broadcast_count += 1
+								snap.MinerPool[j].Broadcast += 1
+								var hj uint64 = (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+								myList1 = append(myList1, hj)
+							}
+
+							snap.MinerPool[i].Broadcast_Game += 1
+							snap.MinerPool[j].Broadcast_Game += 1
+						}
+					}
+				}
+
+				count_eligible = 0
+				count2 += 1
+
+				for i := 0; i < len(snap.MinerPool); i++ {
+					flag2 := 0
+					if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
+						snap.MinerPool[i].Eligible = false
+						for _, v := range myList2 {
+							if v == i {
+								flag2 = 1
+								break
+							}
+						}
+
+						if flag2 == 0 {
+							myList2 = append(myList2, i)
+						}
+					} else {
+						count_eligible += 1
+					}
+				}
+
+				if count_eligible > 1 && count2 < 3 {
+					// apply1()
+
+					for i := 0; i < len(snap.MinerPool); i++ {
+						for j := i + 1; j < len(snap.MinerPool); j++ {
+							if snap.MinerPool[i].Eligible == false {
+								break
+							}
+
+							if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+								k := rand.Intn(2)
+								m := rand.Intn(2)
+								if k == 0 { //0 means broadcast and 1 means non-broadcast
+									snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+									snap.MinerPool[i].Curent_Broadcast_count += 1
+									snap.MinerPool[i].Broadcast += 1
+									var hj uint64 = (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
+									myList1 = append(myList1, hj)
+								}
+
+								if m == 0 {
+									snap.MinerPool[j].Reputation = snap.MinerPool[j].Reputation - (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+									snap.MinerPool[j].Curent_Broadcast_count += 1
+									snap.MinerPool[j].Broadcast += 1
+									var hj uint64 = (4 * snap.MinerPool[j].Reputation / 10 * uint64(snap.MinerPool[j].Broadcast) / uint64(snap.MinerPool[j].Broadcast_Game))
+									myList1 = append(myList1, hj)
+								}
+
+								snap.MinerPool[i].Broadcast_Game += 1
+								snap.MinerPool[j].Broadcast_Game += 1
+							}
+						}
+					}
+
+					count_eligible = 0
+					count2 += 1
+
+					for i := 0; i < len(snap.MinerPool); i++ {
+						flag2 := 0
+						if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
+							snap.MinerPool[i].Eligible = false
+							for _, v := range myList2 {
+								if v == i {
+									flag2 = 1
+									break
+								}
+							}
+
+							if flag2 == 0 {
+								myList2 = append(myList2, i)
+							}
+						} else {
+							count_eligible += 1
+						}
+					}
+
+				}
+			}
 		}
 
 		var rep uint64 = 1
-		var rep1 uint64 = 1
 		var index int
-		var index1 int
 		var max_address1 common.Address
-		var max_address2 common.Address
 		for i := 0; i < len(snap.MinerPool); i++ {
 			if snap.MinerPool[i].Eligible {
 				if snap.MinerPool[i].Reputation > rep && snap.MinerPool[i].Reputation != 100 {
@@ -721,29 +886,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			}
 		}
 
-		if index != -1 {
-			for i := 0; i < len(snap.MinerPool); i++ {
-				if snap.MinerPool[i].Eligible {
-					if snap.MinerPool[index].Owner != snap.MinerPool[i].Owner {
-						if snap.MinerPool[i].Reputation > rep1 && rep != snap.MinerPool[i].Reputation && snap.MinerPool[i].Reputation != 100 {
-							rep1 = snap.MinerPool[i].Reputation
-							index1 = i
-							fmt.Println("2nd Eligible = ", snap.MinerPool[i].Owner)
-							max_address2 = snap.MinerPool[i].Owner
-						}
-					}
-				}
-			}
-		}
-
-		fmt.Println(index1)
-		var max_address common.Address
-		if rep > rep1 {
-			max_address = max_address1
-		} else {
-			max_address = max_address2
-		}
-		snap.StakeSigner = max_address
+		snap.StakeSigner = max_address1
 
 		fmt.Println("Miner Selected ", snap.StakeSigner)
 
