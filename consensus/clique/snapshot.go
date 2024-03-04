@@ -117,6 +117,7 @@ type Minerpool struct {
 	Invalid_Block          int            `json:"invalid_block"`
 	Block_Game             int            `json:"block_games_played"`
 	Broadcast              int            `json:"broadcast_game"`
+	Current_game_plaing    uint64         `json:"block_current_game_playing"`
 	Broadcast_Game         int            `json:"broadcast_game_played"`
 	Curent_Broadcast_count uint64         `json:"cuurent_broadcast_play"`
 	Eligible               bool           `json:"eligible"`
@@ -602,7 +603,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					Delegated_Count:        snap.TallyDelegatedStake[i].Delegated_Count,
 					Invalid_Block:          snap.TallyDelegatedStake[i].Invalid_Block,
 					Block_Game:             snap.TallyDelegatedStake[i].Block_Game,
-					Current_game_plaing: 0,
+					Current_game_plaing:    0,
 					Broadcast:              jk,
 					Broadcast_Game:         lk,
 					Curent_Broadcast_count: 0,
@@ -704,40 +705,65 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		fmt.Println("Number of Eligible nodes = ", count_eligible)
 		if count_eligible > 1 && count2 < 3 {
-			// apply1()
-		for i := 0; i < len(snap.MinerPool); i++ {
-			for j := i + 1; j < len(snap.MinerPool); j++ {
+			count2 += 1
+			for i := 0; i < len(snap.MinerPool); i++ {
+				for j := i + 1; j < len(snap.MinerPool); j++ {
 
-				if snap.MinerPool[i].Eligible == false{
-					break
+					if snap.MinerPool[i].Eligible == false {
+						break
+					}
+
+					if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+						k := rand.Intn(2)
+						m := rand.Intn(2)
+						if k == 0 { //0 means invalid and 1 means valid
+							snap.MinerPool[i].OStakes = snap.MinerPool[i].OStakes - (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+							snap.MinerPool[i].Invalid_Block += 1
+							snap.MinerPool[i].Current_game_plaing += 1
+							var hj uint64 = (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+							myList = append(myList, hj)
+
+						}
+
+						if m == 0 {
+							snap.MinerPool[j].OStakes = snap.MinerPool[j].OStakes - (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+							snap.MinerPool[j].Invalid_Block += 1
+							snap.MinerPool[j].Current_game_plaing += 1
+							var hj uint64 = (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+							myList = append(myList, hj)
+						}
+
+						snap.MinerPool[i].Block_Game += 1
+						snap.MinerPool[j].Block_Game += 1
+					}
+
 				}
-
-				if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == false{
-					k := rand.Intn(2)
-				m := rand.Intn(2)
-				if k == 0 { //0 means invalid and 1 means valid
-					snap.MinerPool[i].OStakes = snap.MinerPool[i].OStakes - (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
-					snap.MinerPool[i].Invalid_Block += 1
-					snap.MinerPool[i].Current_game_plaing += 1
-					var hj uint64 = (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
-					myList = append(myList, hj)
-
-				}
-
-				if m == 0 {
-					snap.MinerPool[j].OStakes = snap.MinerPool[j].OStakes - (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
-					snap.MinerPool[j].Invalid_Block += 1
-					snap.MinerPool[j].Current_game_plaing += 1
-					var hj uint64 = (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
-					myList = append(myList, hj)
-				}
-
-				snap.MinerPool[i].Block_Game += 1
-				snap.MinerPool[j].Block_Game += 1
-				}
-				
 			}
-		}
+
+			for i := 0; i < len(snap.MinerPool); i++ {
+				if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+					snap.MinerPool[i].Eligible = false
+					flag2 := 0
+					for _, v := range myList2 {
+						if v == i {
+							flag2 = 1
+							break
+						}
+					}
+
+					if flag2 == 0 {
+						myList2 = append(myList2, i)
+					}
+
+				}
+			}
+
+			count_eligible = 0
+			for i := 0; i < len(snap.MinerPool); i++ {
+				if snap.MinerPool[i].Eligible {
+					count_eligible += 1
+				}
+			}
 
 			for i := 0; i < len(snap.MinerPool); i++ {
 				for j := i + 1; j < len(snap.MinerPool); j++ {
@@ -770,9 +796,6 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 				}
 			}
 
-			count_eligible = 0
-			count2 += 1
-
 			for i := 0; i < len(snap.MinerPool); i++ {
 				flag2 := 0
 				if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
@@ -787,13 +810,76 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					if flag2 == 0 {
 						myList2 = append(myList2, i)
 					}
-				} else {
+				}
+			}
+
+			count_eligible = 0
+			for i := 0; i < len(snap.MinerPool); i++ {
+				if snap.MinerPool[i].Eligible {
 					count_eligible += 1
 				}
 			}
 
 			if count_eligible > 1 && count2 < 3 {
-				// apply1()
+				count2 += 1
+				for i := 0; i < len(snap.MinerPool); i++ {
+					for j := i + 1; j < len(snap.MinerPool); j++ {
+
+						if snap.MinerPool[i].Eligible == false {
+							break
+						}
+
+						if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+							k := rand.Intn(2)
+							m := rand.Intn(2)
+							if k == 0 { //0 means invalid and 1 means valid
+								snap.MinerPool[i].OStakes = snap.MinerPool[i].OStakes - (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+								snap.MinerPool[i].Invalid_Block += 1
+								snap.MinerPool[i].Current_game_plaing += 1
+								var hj uint64 = (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+								myList = append(myList, hj)
+
+							}
+
+							if m == 0 {
+								snap.MinerPool[j].OStakes = snap.MinerPool[j].OStakes - (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+								snap.MinerPool[j].Invalid_Block += 1
+								snap.MinerPool[j].Current_game_plaing += 1
+								var hj uint64 = (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+								myList = append(myList, hj)
+							}
+
+							snap.MinerPool[i].Block_Game += 1
+							snap.MinerPool[j].Block_Game += 1
+						}
+
+					}
+				}
+
+				for i := 0; i < len(snap.MinerPool); i++ {
+					if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+						snap.MinerPool[i].Eligible = false
+						flag2 := 0
+						for _, v := range myList2 {
+							if v == i {
+								flag2 = 1
+								break
+							}
+						}
+
+						if flag2 == 0 {
+							myList2 = append(myList2, i)
+						}
+
+					}
+				}
+
+				count_eligible = 0
+				for i := 0; i < len(snap.MinerPool); i++ {
+					if snap.MinerPool[i].Eligible {
+						count_eligible += 1
+					}
+				}
 
 				for i := 0; i < len(snap.MinerPool); i++ {
 					for j := i + 1; j < len(snap.MinerPool); j++ {
@@ -826,9 +912,6 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					}
 				}
 
-				count_eligible = 0
-				count2 += 1
-
 				for i := 0; i < len(snap.MinerPool); i++ {
 					flag2 := 0
 					if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
@@ -843,13 +926,76 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 						if flag2 == 0 {
 							myList2 = append(myList2, i)
 						}
-					} else {
+					}
+				}
+
+				count_eligible = 0
+				for i := 0; i < len(snap.MinerPool); i++ {
+					if snap.MinerPool[i].Eligible {
 						count_eligible += 1
 					}
 				}
 
 				if count_eligible > 1 && count2 < 3 {
-					// apply1()
+					count2 += 1
+					for i := 0; i < len(snap.MinerPool); i++ {
+						for j := i + 1; j < len(snap.MinerPool); j++ {
+
+							if snap.MinerPool[i].Eligible == false {
+								break
+							}
+
+							if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
+								k := rand.Intn(2)
+								m := rand.Intn(2)
+								if k == 0 { //0 means invalid and 1 means valid
+									snap.MinerPool[i].OStakes = snap.MinerPool[i].OStakes - (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+									snap.MinerPool[i].Invalid_Block += 1
+									snap.MinerPool[i].Current_game_plaing += 1
+									var hj uint64 = (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+									myList = append(myList, hj)
+
+								}
+
+								if m == 0 {
+									snap.MinerPool[j].OStakes = snap.MinerPool[j].OStakes - (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+									snap.MinerPool[j].Invalid_Block += 1
+									snap.MinerPool[j].Current_game_plaing += 1
+									var hj uint64 = (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+									myList = append(myList, hj)
+								}
+
+								snap.MinerPool[i].Block_Game += 1
+								snap.MinerPool[j].Block_Game += 1
+							}
+
+						}
+					}
+
+					for i := 0; i < len(snap.MinerPool); i++ {
+						if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+							snap.MinerPool[i].Eligible = false
+							flag2 := 0
+							for _, v := range myList2 {
+								if v == i {
+									flag2 = 1
+									break
+								}
+							}
+
+							if flag2 == 0 {
+								myList2 = append(myList2, i)
+							}
+
+						}
+					}
+
+					count_eligible = 0
+					for i := 0; i < len(snap.MinerPool); i++ {
+						if snap.MinerPool[i].Eligible {
+							count_eligible += 1
+						}
+					}
 
 					for i := 0; i < len(snap.MinerPool); i++ {
 						for j := i + 1; j < len(snap.MinerPool); j++ {
@@ -882,9 +1028,6 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 						}
 					}
 
-					count_eligible = 0
-					count2 += 1
-
 					for i := 0; i < len(snap.MinerPool); i++ {
 						flag2 := 0
 						if snap.MinerPool[i].Eligible == true && (100*snap.MinerPool[i].Curent_Broadcast_count/count_eligible) > 40 {
@@ -899,33 +1042,43 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 							if flag2 == 0 {
 								myList2 = append(myList2, i)
 							}
-						} else {
-							count_eligible += 1
 						}
 					}
 
+					count_eligible = 0
+					for i := 0; i < len(snap.MinerPool); i++ {
+						if snap.MinerPool[i].Eligible {
+							count_eligible += 1
+						}
+					}
 				}
 			}
 		}
 
-		var rep uint64 = 1
-		var index int
 		var max_address1 common.Address
-		for i := 0; i < len(snap.MinerPool); i++ {
-			if snap.MinerPool[i].Eligible {
-				if snap.MinerPool[i].Reputation > rep && snap.MinerPool[i].Reputation != 100 {
-					rep = snap.MinerPool[i].Reputation
-					index = i
+
+		if count_eligible == 1 {
+			for i := 0; i < len(snap.MinerPool); i++ {
+				if snap.MinerPool[i].Eligible {
 					fmt.Println("Eligible = ", snap.MinerPool[i].Owner)
 					max_address1 = snap.MinerPool[i].Owner
 				}
 			}
 		}
 
-		snap.StakeSigner = max_address1
+		var minimum float64 = 999
+		if count_eligible == 0 {
+			for i := 0; i < len(snap.MinerPool); i++ {
+				var x float64 = float64(snap.MinerPool[i].Invalid_Block/snap.MinerPool[i].Block_Game) + float64(snap.MinerPool[i].Broadcast/snap.MinerPool[i].Broadcast_Game)
+				if x < minimum {
+					minimum = x
+					max_address1 = snap.MinerPool[i].Owner
+				}
+			}
+		}
 
+		snap.StakeSigner = max_address1
 		fmt.Println("Miner Selected ", snap.StakeSigner)
-		fmt.Println(index)
 
 		endTime := time.Now()
 		duration := endTime.Sub(startTime)
