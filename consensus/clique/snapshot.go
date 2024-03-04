@@ -277,14 +277,6 @@ func (s *Snapshot) uncast(address common.Address, authorize bool) bool {
 	return true
 }
 
-func apply1() {
-	for i := 1; i <= 5; i++ {
-		if i == 5 {
-			return
-		}
-	}
-}
-
 // apply creates a new authorization snapshot by applying the given headers to
 // the original one.
 func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
