@@ -733,7 +733,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			}
 
 			for i := 0; i < len(snap.MinerPool); i++ {
-				if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+				if snap.MinerPool[i].Eligible == true && (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
 					snap.MinerPool[i].Eligible = false
 					flag2 := 0
 					for _, v := range myList2 {
@@ -745,9 +745,10 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 					if flag2 == 0 {
 						myList2 = append(myList2, i)
-					}
-
+					}	
 				}
+
+				snap.MinerPool[i].Current_game_plaing = 0
 			}
 
 			count_eligible = 0
@@ -803,6 +804,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 						myList2 = append(myList2, i)
 					}
 				}
+
+				snap.MinerPool[i].Curent_Broadcast_count
 			}
 
 			count_eligible = 0
@@ -849,7 +852,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 				}
 
 				for i := 0; i < len(snap.MinerPool); i++ {
-					if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+					if snap.MinerPool[i].Eligible == true && (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
 						snap.MinerPool[i].Eligible = false
 						flag2 := 0
 						for _, v := range myList2 {
@@ -862,8 +865,9 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 						if flag2 == 0 {
 							myList2 = append(myList2, i)
 						}
-
 					}
+
+					snap.MinerPool[i].Current_game_plaing = 0
 				}
 
 				count_eligible = 0
@@ -919,6 +923,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 							myList2 = append(myList2, i)
 						}
 					}
+
+					snap.MinerPool[i].Curent_Broadcast_count = 0
 				}
 
 				count_eligible = 0
@@ -965,7 +971,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					}
 
 					for i := 0; i < len(snap.MinerPool); i++ {
-						if (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
+						if snap.MinerPool[i].Eligible == true && (100 * snap.MinerPool[i].Current_game_plaing / count_eligible) > 50 {
 							snap.MinerPool[i].Eligible = false
 							flag2 := 0
 							for _, v := range myList2 {
@@ -978,8 +984,9 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 							if flag2 == 0 {
 								myList2 = append(myList2, i)
 							}
-
 						}
+
+						snap.MinerPool[i].Current_game_plaing = 0
 					}
 
 					count_eligible = 0
@@ -1035,6 +1042,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 								myList2 = append(myList2, i)
 							}
 						}
+
+						snap.MinerPool[i].Curent_Broadcast_count = 0
 					}
 
 					count_eligible = 0
