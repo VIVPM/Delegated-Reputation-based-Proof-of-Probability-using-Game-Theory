@@ -805,7 +805,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					}
 				}
 
-				snap.MinerPool[i].Curent_Broadcast_count
+				snap.MinerPool[i].Curent_Broadcast_count = 0
 			}
 
 			count_eligible = 0
