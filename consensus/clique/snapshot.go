@@ -602,6 +602,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					Delegated_Count:        snap.TallyDelegatedStake[i].Delegated_Count,
 					Invalid_Block:          snap.TallyDelegatedStake[i].Invalid_Block,
 					Block_Game:             snap.TallyDelegatedStake[i].Block_Game,
+					Current_game_plaing: 0,
 					Broadcast:              jk,
 					Broadcast_Game:         lk,
 					Curent_Broadcast_count: 0,
@@ -610,6 +611,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 				})
 				fmt.Println("Chosen Miner pool")
 			}
+
+			snap.TallyDelegatedStake[i].Current_game_plaing = 0
 		}
 
 		myList1 := []uint64{}
@@ -702,6 +705,39 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		fmt.Println("Number of Eligible nodes = ", count_eligible)
 		if count_eligible > 1 && count2 < 3 {
 			// apply1()
+		for i := 0; i < len(snap.MinerPool); i++ {
+			for j := i + 1; j < len(snap.MinerPool); j++ {
+
+				if snap.MinerPool[i].Eligible == false{
+					break
+				}
+
+				if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == false{
+					k := rand.Intn(2)
+				m := rand.Intn(2)
+				if k == 0 { //0 means invalid and 1 means valid
+					snap.MinerPool[i].OStakes = snap.MinerPool[i].OStakes - (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+					snap.MinerPool[i].Invalid_Block += 1
+					snap.MinerPool[i].Current_game_plaing += 1
+					var hj uint64 = (4 * snap.MinerPool[i].OStakes / 10 * uint64(snap.MinerPool[i].Invalid_Block) / uint64(snap.MinerPool[i].Block_Game))
+					myList = append(myList, hj)
+
+				}
+
+				if m == 0 {
+					snap.MinerPool[j].OStakes = snap.MinerPool[j].OStakes - (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+					snap.MinerPool[j].Invalid_Block += 1
+					snap.MinerPool[j].Current_game_plaing += 1
+					var hj uint64 = (4 * snap.MinerPool[j].OStakes / 10 * uint64(snap.MinerPool[j].Invalid_Block) / uint64(snap.MinerPool[j].Block_Game))
+					myList = append(myList, hj)
+				}
+
+				snap.MinerPool[i].Block_Game += 1
+				snap.MinerPool[j].Block_Game += 1
+				}
+				
+			}
+		}
 
 			for i := 0; i < len(snap.MinerPool); i++ {
 				for j := i + 1; j < len(snap.MinerPool); j++ {
