@@ -626,11 +626,13 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			fmt.Println()
 		}
 
+
+		//(Stakes/Total Stakes + blocks generated/Total blocks) = 0.4
 		for i := 0; i < len(snap.MinerPool); i++ {
 			for j := i + 1; j < len(snap.MinerPool); j++ {
 				k := rand.Intn(2)
 				m := rand.Intn(2)
-				if k == 0 { //0 means broadcast and 1 means non-broadcast
+				if k == 0 { //0 means broadcast and 1 means non-broadcast     
 					snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
 					snap.MinerPool[i].Curent_Broadcast_count += 1
 					snap.MinerPool[i].Broadcast += 1
