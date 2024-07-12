@@ -690,7 +690,6 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	if c.stage2 == true {
 		snap.stage2 = true
 		snap.stage1 = false
-
 		c.stage2 = false
 		log.Info("turned On Stage Two")
 	}
@@ -743,6 +742,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	// 	//c.timetaken = time.Now().Sub(t)
 	// 	return errUnauthorizedSigner
 	// }
+	// Find the miner selected in mining process and give rewards to the miner
 	if signer == snap.StakeSigner {
 		//fmt.Println("Time Waited for mining ", c.timetaken)
 		//c.timetaken = 0
@@ -754,6 +754,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		}
 
 		if index != -1 {
+			//Rewards
 			c.stake = (c.stake * uint64(snap.TallyStakes[index].Delegated_count) / games) + (((games - uint64(snap.TallyStakes[index].Delegated_count)) * c.stake / games) / 2)
 			c.reputation = (c.reputation * uint64(snap.TallyStakes[index].Delegated_count) / games) + (((games - uint64(snap.TallyStakes[index].Delegated_count)) * c.reputation / games) / 4)
 		}
