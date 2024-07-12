@@ -567,6 +567,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			f1 = false
 			flag2 := 0
+			//To check if the delegated node is eligible for second stage game, Malicious Block ratio is checked. If the ratio is less than threshold, then delegated node is eligible for palying next stage game.
 			if (100 * snap.TallyDelegatedStake[i].Current_game_plaing / uint64(len(snap.TallyDelegatedStake))) <= 50 {
 				for j := 0; j < len(snap.MinerPool); j++ {
 					if snap.TallyDelegatedStake[i].Owner == snap.MinerPool[j].Owner {
@@ -634,7 +635,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 
-		//(Stakes/Total Stakes + blocks generated/Total blocks) = 0.4
+		//Assuming (Stakes/Total Stakes + blocks generated/Total blocks) = 0.4
 		for i := 0; i < len(snap.MinerPool); i++ {
 			for j := i + 1; j < len(snap.MinerPool); j++ {
 				k := rand.Intn(2)
@@ -680,6 +681,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		for i := 0; i < len(snap.MinerPool); i++ {
 			flag2 := 0
+			//To check if the miner node is eligible for mining, Malicious Broadcast ratio is checked. If the ratio is less than threshold, then miner node is eligible for mining. 
 			if (100 * snap.MinerPool[i].Curent_Broadcast_count / uint64(len(snap.MinerPool))) <= 40 {
 				snap.MinerPool[i].Eligible = true
 			} else {
