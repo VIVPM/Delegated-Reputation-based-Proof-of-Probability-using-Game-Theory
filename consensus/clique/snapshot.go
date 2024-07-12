@@ -67,7 +67,8 @@ type Tally struct {
 @Owner: address of each node
 @OStakes : The Number of stakes each node staked
 @Timestamp : The timestamp of each node entry in the Network
-@MiningPower : Mining Power of each node
+@Reputation : Reputation of each node
+@Delegated count: Number of times the node became Delegated node.
 */
 type TallyStake struct {
 	Owner           common.Address `json:"owner"`
@@ -77,20 +78,16 @@ type TallyStake struct {
 	Delegated_count int            `json:"delegated_count"`
 }
 
-/* This struct will store the Information of selected nodes.
-@Owner: address of selected node
-@OStakes : The Number of stakes selected node staked
-*/
-// type TallyDelegatedStake struct {
-// 	Owner   common.Address `json:"owner"`
-// 	OStakes uint64         `json:"o_stakes"`
-// }
-
-/* This struct will store Informaion  of strong nodes in Network.
+/* This struct will store Informaion of Delegated nodes in Network.
 @Owner: address of strong node
-@OStakes : The Number of stakes strong node staked
-@MiningPower : Mining Power of strong node
-@broadcast : broadcast or non broadcast strategy
+@OStakes : The Number of stakes delegated node staked
+@Timestamp : The timestamp of each node entry in the Network
+@Reputation : Reputation of each node
+@Delegated count: Number of times the node became Delegated node.
+@Invalid Block : Number of times the delegated node creates a block which is invalid (uses invalid block strategy) 
+@Block Game : Number of games played during first stage game by delegated node (history)
+@Current game Playing: Current Number of games played during first stage game by delegated node 
+
 */
 type TallyDelegatedStake struct {
 	Owner               common.Address `json:"owner"`
@@ -106,7 +103,16 @@ type TallyDelegatedStake struct {
 /* This struct will store Informaion nodes who selected for miner.
 @Owner: address of miner node
 @OStakes : The Number of stakes miner node staked
-@MiningPower : Mining Power of miner node
+@Timestamp : The timestamp of each node entry in the Network
+@Reputation : Reputation of each node
+@Delegated count: Number of times the node became Delegated node.
+@Invalid Block : Number of times the delegated node creates a block which is invalid (uses invalid block strategy) 
+@Block Game : Number of games played during first stage game by delegated node (history)
+@Current game Playing: Current number of games played during first stage game by delegated node 
+@Broadcast: Number of blocks that are not broadcasted by miner node
+@Broadcase Game: Number of games played during second stage game by miner node (history)
+@Current Broadcast count: Current number of games played during second stage game by miner node
+@Eligible: Number of nodes eligible for mining process
 */
 type Minerpool struct {
 	Owner                  common.Address `json:"owner"`
@@ -137,11 +143,11 @@ type Snapshot struct {
 	Votes               []*Vote                     `json:"votes"`                 // List of votes cast in chronological order
 	Tally               map[common.Address]Tally    `json:"tally"`                 // Current vote tally to avoid recalculating
 	TallyStakes         []*TallyStake               `json:"tallystakes"`           // to hold all stakes mapped to their addresses // Abhi
-	StakeSigner         common.Address              `json:"stakesigner"`           // Abhi
-	TallyDelegatedStake []*TallyDelegatedStake      `json:"tally_delegated_stake"` //
-	// StrongPool          []*StrongPool               `json:"strong_pool"`           //
-	MinerPool        []*Minerpool                `json:"miner_pool"`        //
-	DelegatedSigners map[common.Address]struct{} `json:"delegated_signers"` //
+	StakeSigner         common.Address              `json:"stakesigner"`           //Abhi 
+	TallyDelegatedStake []*TallyDelegatedStake      `json:"tally_delegated_stake"` //Vivek
+	// StrongPool          []*StrongPool               `json:"strong_pool"`           //Vivek
+	MinerPool        []*Minerpool                `json:"miner_pool"`        //Vivek
+	DelegatedSigners map[common.Address]struct{} `json:"delegated_signers"` //Vivek
 	malicious        bool                        //Find malicious node
 	stage1           bool                        //stage 1 game
 	stage2           bool                        //stage 2 game
@@ -435,7 +441,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		startTime := time.Now()
-		//Stage 1 Game
+		//SFirst tage Game
 		avg := uint64(0)
 		max := uint64(0)
 		min := uint64(999)
@@ -487,7 +493,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		}
 
-		// Stage two
+		// Second Stage Game
 		fmt.Println("Nodes in Network:- ")
 		for i := 0; i < len(snap.TallyStakes); i++ {
 			fmt.Println("Stakes = ", snap.TallyStakes[i].OStakes)
@@ -500,7 +506,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		myList := []uint64{}
 		myList2 := []int{}
-		fmt.Println("Before Stage 1 TallyDelegatedStake Nodes")
+		fmt.Println("Before First Stage TallyDelegatedStake Nodes")
 
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			fmt.Println("OStakes = ", snap.TallyDelegatedStake[i].OStakes)
@@ -543,7 +549,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		snap.stage1 = false
 
-		fmt.Println("After Stage 1 TallyDelegatedStake Nodes")
+		fmt.Println("After First Stage TallyDelegatedStake Nodes")
 
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			fmt.Println("OStakes = ", snap.TallyDelegatedStake[i].OStakes)
@@ -610,7 +616,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		myList1 := []uint64{}
 
-		fmt.Println("Before Stage 2 Miner Nodes")
+		fmt.Println("Before Second Stage Miner Nodes")
 
 		for i := 0; i < len(snap.MinerPool); i++ {
 			fmt.Println("OStakes = ", snap.MinerPool[i].OStakes)
@@ -632,7 +638,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			for j := i + 1; j < len(snap.MinerPool); j++ {
 				k := rand.Intn(2)
 				m := rand.Intn(2)
-				if k == 0 { //0 means broadcast and 1 means non-broadcast     
+				if k == 0 { //1 means broadcast and 0 means non-broadcast     
 					snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
 					snap.MinerPool[i].Curent_Broadcast_count += 1
 					snap.MinerPool[i].Broadcast += 1
@@ -655,7 +661,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		snap.stage2 = false
 
-		fmt.Println("After Stage 2 Miner Nodes")
+		fmt.Println("After Second Stage Miner Nodes")
 
 		for i := 0; i < len(snap.MinerPool); i++ {
 			fmt.Println("OStakes = ", snap.MinerPool[i].OStakes)
@@ -698,6 +704,9 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		fmt.Println("Number of Eligible nodes = ", count_eligible)
+		// If the eligible count is more than one then the eligible nodes will undergo recursion and the nodes will play first stage game and second stage game
+		//The two stage game code is repeated two times where eligible nodes can play twostage game two more times 
+		// If the eligible nodes are more than one after playing two more times, then the eligible node with highest reputation is selected as miner
 		if count_eligible > 1 && count2 < 3 {
 			count2 += 1
 			for i := 0; i < len(snap.MinerPool); i++ {
@@ -1059,7 +1068,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		var max_address1 common.Address
-
+		//The eligible node count is checked to verify whether only one eligible node is present
+		//Else the node with highest reputation is chosen as miner 
 		if count_eligible == 1 {
 			for i := 0; i < len(snap.MinerPool); i++ {
 				if snap.MinerPool[i].Eligible {
@@ -1070,7 +1080,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		var minimum float64 = 999
-		if count_eligible == 0 {
+		if count_eligible == 0 || count_eligible > 1 {
 			for i := 0; i < len(snap.MinerPool); i++ {
 				var x float64 = float64(snap.MinerPool[i].Invalid_Block/snap.MinerPool[i].Block_Game) + float64(snap.MinerPool[i].Broadcast/snap.MinerPool[i].Broadcast_Game)
 				if x < minimum {
