@@ -1108,7 +1108,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			})
 		}
 
-		fmt.Println("Payoff Matrix for Second Stage Game")
+		fmt.Println("Payoff Matrix for First Stage Game")
 		if len(myList) > 0 {
 			fmt.Println("--------------------------------")
 			fmt.Println("|   ", 0, " , ", 0, "|", 0, ",", int(-myList[0])*7, "|")
@@ -1116,7 +1116,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			fmt.Println("|   ", int(-myList[0])*7, ",", 0, " | ", int(-myList[0])*7, ",", int(-myList[0])*7, "|")
 			fmt.Println("--------------------------------")
 		}
-		fmt.Println("Payoff Matrix for Third Stage Game")
+		fmt.Println("Payoff Matrix for Second Stage Game")
 		if len(myList1) > 0 {
 			fmt.Println("-----------------------")
 			fmt.Println("|   ", -1*float64(myList1[0])/float64(100), ",", -1*float64(myList1[0])/float64(100), "|", -1*float64(myList1[0])/float64(100), ",", 0, "|")
@@ -1125,7 +1125,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			fmt.Println("-----------------------")
 		}
 
-		fmt.Println("Number of malicious nodes = ", len(myList2))
+		fmt.Println("Number of malicious nodes = ", len(myList2)) //Number of malicious nodes
 		// If we're taking too much time (ecrecover), notify the user once a while
 		if time.Since(logged) > 8*time.Second {
 			log.Info("Reconstructing voting history", "processed", i, "total", len(headers), "elapsed", common.PrettyDuration(time.Since(start)))
