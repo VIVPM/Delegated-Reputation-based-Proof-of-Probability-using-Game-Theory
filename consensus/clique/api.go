@@ -82,7 +82,7 @@ func (api *API) GetSigners(number *rpc.BlockNumber) ([]common.Address, error) {
 }
 
 /*
-	This Function will add the stake to the network By every node
+	This Function will add the stake to the network for every node
 	@stake : The number of stakes
 */
 func (api *API) AddStake(stake uint64) {
@@ -90,18 +90,20 @@ func (api *API) AddStake(stake uint64) {
 	fmt.Println(stake)
 	api.clique.lock.Lock()
 	defer api.clique.lock.Unlock()
-
 	//api.clique.stakes[address] = stake
 	api.clique.stake = stake //add stake to clique struct
 
 }
 
+/*
+	This Function will add the reputation to the network for every node
+	@reputation : Reputation
+*/
 func (api *API) AddReputation(reputation uint64) {
 	log.Info("adding Reputation")
 	fmt.Println(reputation)
 	api.clique.lock.Lock()
 	defer api.clique.lock.Unlock()
-
 	//api.clique.stakes[address] = stake
 	api.clique.reputation = reputation //add reputation to clique struct
 }
@@ -111,6 +113,7 @@ func (api *API) ActAsMalicious() {
 	log.Info("You Are Now malicious Node")
 }
 
+//Th BlockCreate Function is used to find the average time taken to mine the blocks
 func (api *API) BlockCreate(num int) {
 	time1 := 0
 	var now2 time.Time
