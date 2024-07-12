@@ -129,7 +129,7 @@ type Minerpool struct {
 	Eligible               bool           `json:"eligible"`
 }
 
-var games uint64 = 10000
+var games uint64 = 10000 //Assuming total number of games being played by all nodes
 
 // Snapshot is the state of the authorization voting at a given point in time.
 type Snapshot struct {
@@ -520,6 +520,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			fmt.Println()
 		}
 
+		//Assuming (Stakes/Total Stakes + Proportion of Blocks generated) is equivalent to 0.4
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			for j := i + 1; j < len(snap.TallyDelegatedStake); j++ {
 
