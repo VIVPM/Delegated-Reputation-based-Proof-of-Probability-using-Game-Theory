@@ -2,6 +2,7 @@
 
 The work focuses on applying game theory to blockchain technology. The goal is to analyze and optimize the behavior and interactions of various participants within the blockchain ecosystem. By modeling actions of miners, validators, and other stakeholders as strategic games, we incentivize honest behavior and deter malicious activities. This ensures consensus, security, and efficiency in blockchain operations, particularly in Proof of Stake and Proof of Work systems. Here, the Game Theory is integrated to Proof of Stake consensus algorithm. The DRPoP-GT consensus algorithm is evaluated using performance metrics across various scenarios and experimental parameters.
 
+---------
 
 ## Implementation
 
@@ -10,7 +11,7 @@ We have implemented a multi-node configuration of Ethereum by incorporating the 
 1. **First-Stage Game**
 2. **Second-Stage Game**
 
-The results of the first-stage game are utilized in the second-stage game. After completing the two-stage game, an eligible node is selected as the miner and receives rewards. A penalty is imposed at each stage if a node behaves maliciously. At the node, the final eligible node is selected as miner.
+The results of the first-stage game are utilized in the second-stage game. After completing the two-stage game, the last eligible node is selected as the miner and receives rewards. A penalty is imposed at each stage if a node behaves maliciously.
 
 ---
 
