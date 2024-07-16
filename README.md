@@ -75,7 +75,7 @@ sudo bootnode -nodekey boot.key
 ```
 
 ### Step 9:
-With all preparations complete, start the blockchain on each terminal representing each node, with each node using its communication channel (port). This process ensures our modified blockchain with the EPoL consensus mechanism starts up successfully. Run each of the following in separate terminals.
+With all preparations complete, start the blockchain on each terminal representing each node, with each node using its communication channel (port). This process ensures our modified blockchain with the DRPoP-GT consensus mechanism starts up successfully. Run each of the following in separate terminals.
 
 ```bash
 sudo ./geth --allow-insecure-unlock --datadir ~/ethereum/node1/ --syncmode 'full' --port 30311 --rpc --rpcaddr 'localhost' --rpcport 8501 --rpcapi 'personal,db,eth,net,web3,txpool,miner' --bootnodes 'enode://<bootnode_enode>@127.0.0.1:0?discport=30301' --networkid 1515 --gasprice '1' --mine console
