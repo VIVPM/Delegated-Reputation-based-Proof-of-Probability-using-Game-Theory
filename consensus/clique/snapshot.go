@@ -110,7 +110,7 @@ type TallyDelegatedStake struct {
 @Block Game : Number of games played during first stage game by delegated node (history)
 @Current game Playing: Current number of games played during first stage game by delegated node 
 @Broadcast: Number of blocks that are not broadcasted by miner node
-@Broadcase Game: Number of games played during second stage game by miner node (history)
+@Broadcast Game: Number of games played during second stage game by miner node (history)
 @Current Broadcast count: Current number of games played during second stage game by miner node
 @Eligible: Number of nodes eligible for mining process
 */
@@ -441,7 +441,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		startTime := time.Now()
-		//SFirst tage Game
+		//Delegated Node Selection
 		avg := uint64(0)
 		max := uint64(0)
 		min := uint64(999)
@@ -493,7 +493,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		}
 
-		// Second Stage Game
+		
 		fmt.Println("Nodes in Network:- ")
 		for i := 0; i < len(snap.TallyStakes); i++ {
 			fmt.Println("Stakes = ", snap.TallyStakes[i].OStakes)
@@ -521,6 +521,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		}
 
 		//Assuming (Stakes/Total Stakes + Proportion of Blocks generated) is equivalent to 0.4
+		//First Stage Game
 		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 			for j := i + 1; j < len(snap.TallyDelegatedStake); j++ {
 
@@ -636,6 +637,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 
 		//Assuming (Stakes/Total Stakes + blocks generated/Total blocks) = 0.4
+		//Second Stage game
 		for i := 0; i < len(snap.MinerPool); i++ {
 			for j := i + 1; j < len(snap.MinerPool); j++ {
 				k := rand.Intn(2)
@@ -781,7 +783,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
 						k := rand.Intn(2)
 						m := rand.Intn(2)
-						if k == 0 { //0 means broadcast and 1 means non-broadcast
+						if k == 0 { //0 means non-broadcast and 1 means broadcast
 							snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
 							snap.MinerPool[i].Curent_Broadcast_count += 1
 							snap.MinerPool[i].Broadcast += 1
@@ -900,7 +902,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 						if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
 							k := rand.Intn(2)
 							m := rand.Intn(2)
-							if k == 0 { //0 means broadcast and 1 means non-broadcast
+							if k == 0 { //0 means non-broadcast and 1 means broadcast
 								snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
 								snap.MinerPool[i].Curent_Broadcast_count += 1
 								snap.MinerPool[i].Broadcast += 1
@@ -1019,7 +1021,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 							if snap.MinerPool[i].Eligible == true && snap.MinerPool[j].Eligible == true {
 								k := rand.Intn(2)
 								m := rand.Intn(2)
-								if k == 0 { //0 means broadcast and 1 means non-broadcast
+								if k == 0 { //0 means non-broadcast and 1 means broadcast
 									snap.MinerPool[i].Reputation = snap.MinerPool[i].Reputation - (4 * snap.MinerPool[i].Reputation / 10 * uint64(snap.MinerPool[i].Broadcast) / uint64(snap.MinerPool[i].Broadcast_Game))
 									snap.MinerPool[i].Curent_Broadcast_count += 1
 									snap.MinerPool[i].Broadcast += 1
